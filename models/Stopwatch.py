@@ -19,8 +19,9 @@ class Stopwatch:
     def _run(self):
         """AQeg jookseb threadis"""
         while self.running:
+            self.seconds += 1  # suurenda ühe sekundi võrra
             time.sleep(1) #oota 1 sekund
-            self.seconds += 1 #suurenda ühe sekundi võrra
+
 
     def stop(self):
         """peata stopper"""
@@ -28,7 +29,7 @@ class Stopwatch:
 
     def reset(self):
         self.stop() #aeg peatada
-        self.start = 0 #aeg nullida
+        self.seconds = 0 #aeg nullida
 
     def format_time(self):
         hours = self.seconds // 3600
