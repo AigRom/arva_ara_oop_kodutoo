@@ -78,7 +78,7 @@ class Model:
 
                 self.lets_play()
             elif user_input == 2:
-                self.show_leaderboard() #näita edetabelit
+                self.show_no_cheater() #näita edetabelit
                 self.show_menu() #lähmne mängima
             elif user_input == 3:
                 print('Ootame Sind tagasi!')
@@ -93,7 +93,51 @@ class Model:
         data = db.read_records()
         if data:
             for record in data:
-                print(record) # name -> record[1]
+                print(record)  # name -> record[1]
+
+        # CHATIGA ARETATUD VERSIOON
+    #def show_leaderboard():
+        """näita edetabelit"""
+        #db = Database()
+        #data = db.no_cheater()
+        #if data:
+           # header = f"{'Nimi':<15} | {'Number':<10} | {'Sammud':<10} | {'Mängu aeg':<10}"
+            #separator = "-" * len(header)
+            #print(header)
+            #print(separator)
+
+            #for record in data:
+                #name = record[0]  # Nimi
+                #quess = record[1]  # Number
+                #steps = record[2]  # Sammud
+                #game_length = record[3]  # Mängu aeg
+
+                #print(f"{name:<15} | {quess:<10} | {steps:<10} | {game_length:<10}")
+
+    def show_no_cheater(self):
+        """Edetabel ausatele mängijatele"""
+        db = Database()
+        data = db.no_cheater()
+        if data:
+            formatters = {'Mängu aeg': self.format_time}
+            print() #tühi riba enne edetabelit
+            #self.print_table(data, formatters)
+            self.manual_table(data)
+            print()
+
+    @staticmethod
+    def format_time(seconds):
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = seconds % 60
+        return f"{hours:02}:{minutes:02}:{seconds:02}"
+
+    #def print_table(self, formatters=None):...
+
+    def manual_table(self,data):
+        print('Nimi            Number  Sammud  Mängu aeg')
+        for row in data:
+            print(f'{row[0][:15]:<16} {row[1]:>5} {row[2]:>7} {self.format_time(row[3]):>103}')
 
 
 
