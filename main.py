@@ -16,11 +16,14 @@ if __name__ == '__main__':
             #print(record)
 
     model = Model()
+    model.show_menu()
+
     #print(model.pc_nr)
     #time.sleep(2)
     #model.stopwatch.stop()
     #print(model.stopwatch.format_time())
-    model.lets_play()
+    # TODO järgnev rida oli enne show_menu osa
+    #model.lets_play()
 
 
 

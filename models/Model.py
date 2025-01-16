@@ -1,6 +1,7 @@
 
 from random import randint
 
+from models.Database import Database
 from models.Stopwatch import Stopwatch
 
 
@@ -19,7 +20,7 @@ class Model:
         self.game_over = False #Mäng ei ole läbi
         self.cheater = False #Mängija ei ole petis
         self.stopwatch.reset() #nullib stopperi
-        self.stopwatch.start()  # käivitab stopperi
+        #self.stopwatch.start()  # käivitab stopperi
         self.steps = 0 #Käikude arv
 
     def ask(self):
@@ -42,8 +43,62 @@ class Model:
 
     def lets_play(self):
         """Mängime mängu - avalik meetod"""
+        self.stopwatch.start()
         while not self.game_over:
             self.ask()
         #Näita mängu aega
         print(f'Mäng kestis {self.stopwatch.format_time()}')
+
+        self.what_next()
+        self.show_menu()
+
+    def what_next(self):
+        """küsime mängija nime ja lisame andmebaasi"""
+        name = self.ask_name()
+        db = Database() #loo andmebaasi objekt
+        db.add_record(name, self.steps, self.pc_nr, self.cheater, self.stopwatch.seconds)
+
+    @staticmethod
+    def ask_name():
+        """Küsib nime ja tagastab korrektse nime"""
+        name = input('Kuidas on mängija nimi? ')
+        if not name.strip():
+            name = 'Teadmata'
+        return name.strip()
+
+    def show_menu(self):
+        """näita mängu menüü"""
+        print('1 - Mängima')
+        print('2 - Edetabel')
+        print('3 - Välju programmist')
+        user_input = int(input('sisesta number [1, 2 või 3]'))
+        if 1 <= user_input <= 3:
+            if user_input == 1:
+                self.reset_game()
+
+                self.lets_play()
+            elif user_input == 2:
+                self.show_leaderboard() #näita edetabelit
+                self.show_menu() #lähmne mängima
+            elif user_input == 3:
+                print('Ootame Sind tagasi!')
+                exit()
+        else:
+            self.show_menu()
+
+    @staticmethod
+    def show_leaderboard():
+        """näita edetabelit"""
+        db = Database()
+        data = db.read_records()
+        if data:
+            for record in data:
+                print(record) # name -> record[1]
+
+
+
+
+
+
+
 
