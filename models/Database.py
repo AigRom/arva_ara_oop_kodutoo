@@ -66,24 +66,48 @@ class Database:
         else:
             print('Ühendus puudub! Palun loo ühendus andmebaasiga.')
 
-
     def no_cheater(self):
-
+        # Kontrollib, kas andmebaasi ühendus (cursor) on olemas
         if self.cursor:
             try:
-                sql = f'SELECT name, quess, steps, game_length FROM  {self.tabel} WHERE cheater=?;'
+                # SQL-päring, mis valib mängija nime, pakkumised (quess), sammude arvu ja mängu kestuse
+                # Filtreerib välja petjad (cheater = 0)
+                # Sorteerib tulemused sammude arvu (kasvavalt), seejärel mängu kestuse ja lõpuks nime järgi
+                # Piirab tulemused maksimaalselt 10 parima mängijani
+                sql = f'SELECT name, quess, steps, game_length FROM {self.tabel} WHERE cheater = ? ORDER BY steps ASC, game_length ASC, name ASC LIMIT 10;'
 
-                self.cursor.execute(sql,(0,))
 
+                # Käivitab SQL-päringu, asendades '?' väärtusega 0 (ausad mängijad)
+                self.cursor.execute(sql, (0,))
+
+                # Salvestab kõik tulemused muutujasse 'data'
                 data = self.cursor.fetchall()  # kõik kirjed muutujasse data
 
-                return data  # tagastab kõik kirjed
+                return data  # tagastab kuni 10 kirjet
+            except sqlite3.Error as error:
+
+                print(f'Kirjete lugemisel ilmnes tõrge: {error}') # Tõrke korral prindib veateate
+                return []
+            finally:
+                # Sulgeb andmebaasi ühenduse
+                self.close_connection()
+        else:
+            # Kui ühendus puudub, kuvab teavituse
+            print('Ühendus andmebaasiga puudub. Loo ühendus andmebaasiga.')
+
+    def for_export(self):
+        if self.cursor:
+            try:
+                # SQL-päring, mis valib kõik veerud kogu andmebaasist
+                # Sorteerib tulemused sammude arvu (kasvavalt), seejärel mängu kestuse ja lõpuks nime järgi
+                sql = f'SELECT * FROM {self.tabel} ORDER BY steps ASC, game_length ASC;'
+                self.cursor.execute(sql) #Kogu andmebaasi sisu.
+                data = self.cursor.fetchall()
+                return data
             except sqlite3.Error as error:
                 print(f'Kirjete lugemisel ilmnes tõrge: {error}')
                 return []
             finally:
                 self.close_connection()
         else:
-
-
             print('Ühendus andmebaasiga puudub. Loo ühendus andmebaasiga.')

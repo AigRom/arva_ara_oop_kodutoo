@@ -137,7 +137,7 @@ class Model:
     def manual_table(self,data):
         print('Nimi            Number  Sammud  Mängu aeg')
         for row in data:
-            print(f'{row[0][:15]:<16} {row[1]:>5} {row[2]:>7} {self.format_time(row[3]):>103}')
+            print(f'{row[0][:15]:<16} {row[1]:>5} {row[2]:>7} {self.format_time(row[3]):>10}')
 
 
 
