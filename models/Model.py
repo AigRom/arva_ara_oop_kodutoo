@@ -2,7 +2,9 @@
 from random import randint
 
 from models.Database import Database
+from models.ExportToFile import ExportToFile
 from models.Stopwatch import Stopwatch
+
 
 
 class Model:
@@ -58,6 +60,7 @@ class Model:
         db = Database() #loo andmebaasi objekt
         db.add_record(name, self.steps, self.pc_nr, self.cheater, self.stopwatch.seconds)
 
+
     @staticmethod
     def ask_name():
         """Küsib nime ja tagastab korrektse nime"""
@@ -78,8 +81,13 @@ class Model:
 
                 self.lets_play()
             elif user_input == 2:
+                etf = ExportToFile(self)
+                etf.export()
                 self.show_no_cheater() #näita edetabelit
+                #self.show_leaderboard()
+
                 self.show_menu() #lähmne mängima
+
             elif user_input == 3:
                 print('Ootame Sind tagasi!')
                 exit()
@@ -88,31 +96,14 @@ class Model:
 
     @staticmethod
     def show_leaderboard():
-        """näita edetabelit"""
+        """Näitab kogu edetabelit ja ekspordib selle faili kohe pärast kuvamist"""
         db = Database()
-        data = db.read_records()
-        if data:
-            for record in data:
-                print(record)  # name -> record[1]
+        data = db.read_records()  # Võtab KOGU edetabeli andmebaasist
 
-        # CHATIGA ARETATUD VERSIOON
-    #def show_leaderboard():
-        """näita edetabelit"""
-        #db = Database()
-        #data = db.no_cheater()
-        #if data:
-           # header = f"{'Nimi':<15} | {'Number':<10} | {'Sammud':<10} | {'Mängu aeg':<10}"
-            #separator = "-" * len(header)
-            #print(header)
-            #print(separator)
 
-            #for record in data:
-                #name = record[0]  # Nimi
-                #quess = record[1]  # Number
-                #steps = record[2]  # Sammud
-                #game_length = record[3]  # Mängu aeg
+        for record in data:
+            print(record)  # Kuvab edetabeli terminalis
 
-                #print(f"{name:<15} | {quess:<10} | {steps:<10} | {game_length:<10}")
 
     def show_no_cheater(self):
         """Edetabel ausatele mängijatele"""
@@ -124,6 +115,10 @@ class Model:
             #self.print_table(data, formatters)
             self.manual_table(data)
             print()
+
+
+
+
 
     @staticmethod
     def format_time(seconds):
@@ -138,6 +133,7 @@ class Model:
         print('Nimi            Number  Sammud  Mängu aeg')
         for row in data:
             print(f'{row[0][:15]:<16} {row[1]:>5} {row[2]:>7} {self.format_time(row[3]):>10}')
+
 
 
 

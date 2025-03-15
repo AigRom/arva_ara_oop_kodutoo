@@ -1,38 +1,44 @@
+import os
+import datetime
+from models.Database import Database
+
 class ExportToFile:
     def __init__(self, model):
-        """
-        Konstruktor, mis seadistab mudeli ja hangib andmebaasist vajalikud andmed.
-        :param model: Mudel, mis antakse kaasa objekti loomisel
-        """
-        self.model = model                    # Seadistab mudeli
-        self.database = Database()            # Loob ühenduse andmebaasiga
-        self.data = self.database.for_export() # Hangib andmed sorteeritult
-        self.filename = self.database.ranking.replace('.db', '.txt')  # Failinimi vastavuses andmebaasiga
+        self.model = model  # Mudel, et kasutada format_time()
+        self.db = Database()  # Loome andmebaasi objekti
+        self.data = self.db.for_export()  # Võtame kogu edetabeli sisu
 
     def export(self):
-        """
-        Ekspordib andmebaasi andmed tekstifaili semikooloniga eraldatud kujul.
-        Faili esimene rida sisaldab veergude nimesid.
-        """
         if not self.data:
-            print('Andmeid pole eksportimiseks.')
+            print("⚠️  Andmebaasis puuduvad edetabeli andmed. Kontrolli, kas tabelis 'ranking' on kirjeid!")
             return
 
-        try:
-            with open(self.filename, mode='w', encoding='utf-8') as file:
-                # Kirjutab päise
-                file.write('ID;Name;Steps;Guesses;Cheater;Game Length;Game Time\n')
+        # Faili nimi vastavalt andmebaasi nimele, kuid .txt laiendiga
+        db_filename = os.path.basename(self.db.db_name)
+        txt_filename = os.path.splitext(db_filename)[0] + ".txt"
 
-                # Kirjutab kõik andmed vormindatult faili
-                for record in self.data:
-                    id_, name, steps, guesses, cheater, game_length, game_time = record
-                    formatted_game_length = self.model.format_time(game_length)
-                    formatted_game_time = datetime.fromtimestamp(game_time).strftime('%d.%m.%Y %H:%M:%S')
+        # Päis (fikseeritud)
+        headers = "id;name;score;steps;cheater;game_length;game_time"
 
-                    line = f'{id_};{name};{steps};{guesses};{cheater};{formatted_game_length};{formatted_game_time}\n'
-                    file.write(line)
+        with open(txt_filename, "w", encoding="utf-8") as f:
+            f.write(headers + "\n")  # Esimene rida sisaldab veerunimesid
 
-            print(f'Andmed edukalt eksporditud faili: {self.filename}')
+            # Kirjutame iga rea faili
+            for row in self.data:
+                id_, name, quess, steps, cheater, game_length, game_time = row  # Kogu edetabeli info
 
-        except Exception as e:
-            print(f'Tõrge andmete eksportimisel: {e}')
+                # Vormindame sekundid HH:MM:SS kujule
+                formatted_length = self.model.format_time(game_length)
+
+                # Kontrollime, kas `game_time` on juba string ja teisendame õigesse formaati
+                if isinstance(game_time, str):
+                    # Muudame formaadi: 2025-03-15 13:49:17 → 15.03.2025 13:49:17
+                    formatted_time = datetime.datetime.strptime(game_time, "%Y-%m-%d %H:%M:%S").strftime(
+                        "%d.%m.%Y %H:%M:%S")
+                else:
+                    formatted_time = datetime.datetime.fromtimestamp(game_time).strftime("%d.%m.%Y %H:%M:%S")
+
+                # Kirjutame andmed faili
+                f.write(f"{id_};{name};{quess};{steps};{cheater};{formatted_length};{formatted_time}\n")
+
+        print(f"Kogu edetabel eksporditi faili: {txt_filename}")

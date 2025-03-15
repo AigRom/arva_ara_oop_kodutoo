@@ -100,7 +100,7 @@ class Database:
             try:
                 # SQL-päring, mis valib kõik veerud kogu andmebaasist
                 # Sorteerib tulemused sammude arvu (kasvavalt), seejärel mängu kestuse ja lõpuks nime järgi
-                sql = f'SELECT * FROM {self.tabel} ORDER BY steps ASC, game_length ASC;'
+                sql = f'SELECT * FROM {self.tabel} ORDER BY steps ASC, game_length ASC, name ASC;'
                 self.cursor.execute(sql) #Kogu andmebaasi sisu.
                 data = self.cursor.fetchall()
                 return data
